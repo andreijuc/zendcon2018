@@ -1,0 +1,80 @@
+Instructions:
+
+Build Dockerfile:
+
+# cd /path/to/Dockerfile
+# docker build -t cowsays:latest .
+
+
+Run container:
+# docker run cowsays
+
+Run container in interactive mode overriding specified entrypoint:
+# docker run --name my_first_container -it --entrypoint /bin/bash cowsays
+
+
+Environment Variables at run-time:
+# docker run –e EXECUTION_SUITE=sanity –e USER=$LOGNAME cowsays
+
+Mounting volumes:
+# docker run –v /sharedlib:/space/testing/ cowsays
+
+Forgot something?
+Exit, Stop, commit and re-run
+# docker commit my_first_container my_first_snapshot
+# docker run -it -p <port>:<port> -v /path/to/local/dir/:/path/to/docker/dir my_first_snapshot 
+
+Create a volume:
+# docker volume create first-vol
+
+List volumes:
+# docker volume ls
+
+Docker volumes:
+Don’t forget to mention!
+Non-existent volume -> Creates volume
+Non-Existent volume and existent mount path -> contents of mount path copied into volume
+Existent volume and existent mount path -> Overwrites contents of mount path with contents in volume
+# docker run -v first-vol:/storage cowsays
+# docker run -v second-vol:/etc cowsays
+
+Remove a volume:
+# docker volume rm first-vol
+# docker volume prune 
+
+Start jenkins and use docker network:
+# docker network create jenkins_network
+# docker run --detach --network jenkins_network -p 8080:8080 -p 50000:50000 --name jenkins --hostname jenkins jenkins/jenkins:lts
+
+Attach to running jenkins conntainer:
+# docker exec -it jenkins /bin/bash
+jenkins@jenkins$ cat /var/jenkins_home/secrets/initialAdminPassword
+w873985135lkqwflkkjqf28103
+
+Start Jenkins node and attach to network:
+# docker run -it --network jenkins_network --entrypoint /bin/bash --name node_1 jenkins/jenkins:lts
+jenkins@node_1$ cd
+jenkins@node_1$ mkdir jenkins
+jenkins@node_1$ wget http://jenkins:8080/jnlpJars/agent.jar
+jenkins@node_1$ java -jar agent.jar -jnlpUrl http://jenkins:8080/computer/Node1/slave-agent.jnlp -secret <secret_alpha_numerical_string> -workDir "/var/jenkins_home/jenkins"
+
+Compounded Docker commands:
+# docker build –t <registry>/<image>:<tag> .
+# docker push <registry>/<image>:<tag>
+
+# docker tag $(docker build –q .) <registry>/<image>:<tag>
+# docker push <registry>/<image>:<tag>
+
+Docker cleanup:
+# docker stop $(docker ps –q)
+# docker rm $(docker ps –qa)
+# docker rmi $(docker images –q)
+# docker volume rm $(docker volume ls –q)
+
+Single command for easy cleanup:
+# docker system prune --force
+
+Running a docker registry:
+# docker pull registry:v2
+# docker run –d –restart=always –p 5000:5000 registry:v2
+
